@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import Board from '../components/Board';
 import {initBoard} from "../helpers/initBoard";
 import {getPossibleMoves} from "../helpers/getMoves";
@@ -6,17 +6,18 @@ import {getPossibleMoves} from "../helpers/getMoves";
 export interface PieceInterface {
     typ: PieceType,
     team: Team,
-    position: [number, number]
+    position: Position
     selected: boolean,
 }
+export type Position = [number, number];
 export type Team = "white" | "black" | "free";
 export type PieceType = "rook" | "knight" | "bishop" | "queen" | "king" | "pawn" | "free";
 
 interface MyProps {}
 interface MyState {
     pieces: PieceInterface[][],
-    selectedPiece: [number, number] | null,
-    possibleMoves: [number, number][] | null,
+    selectedPiece: Position | null,
+    possibleMoves: Position[] | null,
 }
 class Chess extends React.Component<MyProps, MyState>{
     constructor(props : MyProps) {
@@ -49,7 +50,7 @@ class Chess extends React.Component<MyProps, MyState>{
     };
     render(){
         return (
-            <Board boardPieces={this.state.pieces} selectPiece={this.selectPiece} />
+            <Board boardPieces={this.state.pieces} selectPiece={this.selectPiece} moves={this.state.possibleMoves}/>
         );
     }
 }
