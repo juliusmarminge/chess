@@ -1,7 +1,7 @@
 import React from 'react';
 import Board from '../components/Board';
 import {initBoard} from "../helpers/initBoard";
-import {getPossibleMoves} from "../helpers/getMoves";
+import {findMoveInMoves, getPossibleMoves} from "../helpers/getMoves";
 
 export interface PieceInterface {
     typ: PieceType,
@@ -17,7 +17,7 @@ interface MyProps {}
 interface MyState {
     pieces: PieceInterface[][],
     selectedPiece: Position | null,
-    possibleMoves: Position[] | null,
+    possibleMoves: Position[],
 }
 class Chess extends React.Component<MyProps, MyState>{
     constructor(props : MyProps) {
@@ -25,28 +25,38 @@ class Chess extends React.Component<MyProps, MyState>{
         this.state = {
             pieces: initBoard(),
             selectedPiece: null,
-            possibleMoves: null,
+            possibleMoves: [],
         }
     }
     selectPiece = (newX: number, newY: number) : void => {
         let newPieces = this.state.pieces.slice();
-        if (this.state.selectedPiece) {
-            let [y, x] = this.state.selectedPiece;
-            newPieces[y][x].selected = false;
-        }
         let newSelected = newPieces[newY][newX];
-        console.log(`You clicked: ${newSelected.position[1]}x, ${newSelected.position[0]}y`);
-
+        console.log(newSelected.position)
+        if (this.state.possibleMoves && findMoveInMoves(newSelected.position, this.state.possibleMoves)) {
+            let [x,y] = this.state.selectedPiece!;
+            console.log(`Move from (${x},${y}) to (${newX},${newY})`)
+            let oldPiece = newPieces[y][x];
+            console.log(oldPiece)
+            newPieces[newY][newX].typ = oldPiece.typ;
+            newPieces[newY][newX].team = oldPiece.team;
+            newPieces[y][x].typ = "free";
+            newPieces[y][x].team = "free";
+            console.log(newPieces[newY][newX].typ)
+        }
         if (newSelected.typ !== "free") {
             newSelected.selected = !newSelected.selected;
+        }
+        let newSelectedPiece = newSelected.selected ? [newX, newY] as Position : null
+        if (this.state.selectedPiece) {
+            let [x, y] = this.state.selectedPiece;
+            newPieces[y][x].selected = false;
         }
         let newMoves = getPossibleMoves(newSelected, newPieces);
         this.setState({
             pieces: newPieces,
-            selectedPiece: [newY, newX],
+            selectedPiece: newSelectedPiece,
             possibleMoves: newMoves
         });
-        console.log(`Possible Moves: ${newMoves}`);
     };
     render(){
         return (
