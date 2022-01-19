@@ -15,11 +15,11 @@ export interface PProps {
 }
 
 function Piece ({typ, team, size}: PProps) {
-    const teamClass = team === "white" ? "text-gray-300" : "text-black"
+    const teamClass = team === "white" ? "text-gray-300" : team === "black" ? "text-black" : "text-transparent"
     return(
         <div className={""}>
             <FontAwesomeIcon
-            className={`${teamClass} fa-fw text-${size} p-0 m-0 opacity-${typ=="free" ? "0" : "100"}`}
+            className={`${teamClass} fa-fw text-${size} p-0 m-0`}
             icon={
                 typ === "rook" ? faChessRook :
                 typ === "knight" ? faChessKnight :
