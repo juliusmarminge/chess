@@ -20,7 +20,7 @@ function Board ({boardPieces, handleClick, moves} : BProps) {
                                 <div className={
                                     `w-max aspect-square py-1 select-none border-gray-400 border-2 ${piece.selected ? "bg-gray-600" : ""} ${isMove ? "bg-gray-500" : ""}`
                                 } key={pieceIdx} onClick={() => handleClick(pieceIdx, rowIdx)}>
-                                    <Piece key={pieceIdx} team={piece.team} typ={piece.typ} size={"5xl"}/>
+                                    <Piece key={pieceIdx} team={piece.team} typ={piece.typ} size={"text-5xl"}/>
                                 </div>
                             );
                         })}

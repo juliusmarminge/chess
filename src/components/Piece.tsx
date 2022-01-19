@@ -19,7 +19,7 @@ function Piece ({typ, team, size}: PProps) {
     return(
         <div className={""}>
             <FontAwesomeIcon
-            className={`${teamClass} fa-fw text-${size} p-0 m-0`}
+            className={`${teamClass} fa-fw ${size} p-0 m-0`}
             icon={
                 typ === "rook" ? faChessRook :
                 typ === "knight" ? faChessKnight :
