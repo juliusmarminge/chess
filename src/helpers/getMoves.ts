@@ -28,9 +28,59 @@ export function getPossibleMoves(piece: PieceInterface, pieces: PieceInterface[]
 function RookMoves (piece: PieceInterface, pieces:PieceInterface[][]): Position[] {
     let [x, y] = piece.position;
     let moves: Position[] = [];
-    let stop = false;
-    while(!stop) {
-        stop = true;
+    for (let blocked = false; !blocked && x > 0;)
+    {
+        if (pieces[y][x-1].team === "free")
+            moves.push([x-1, y]);
+        else {
+            blocked = true;
+            if (piece.team === "white" && pieces[y][x-1].team === "black")
+                moves.push([x-1, y]);
+            if (piece.team === "black" && pieces[y][x-1].team === "white")
+                moves.push([x-1, y]);
+        }
+        x--;
+    }
+    [x, y] = piece.position;
+    for (let blocked = false; !blocked && x < 7;)
+    {
+        if (pieces[y][x+1].team === "free")
+            moves.push([x+1, y]);
+        else {
+            blocked = true;
+            if (piece.team === "white" && pieces[y][x+1].team === "black")
+                moves.push([x+1, y]);
+            if (piece.team === "black" && pieces[y][x+1].team === "white")
+                moves.push([x+1, y]);
+        }
+        x++;
+    }
+    [x, y] = piece.position;
+    for (let blocked = false; !blocked && y < 7;) {
+        if (pieces[y + 1][x].team === "free")
+            moves.push([x, y+1]);
+        else {
+            blocked = true;
+            if (piece.team === "white" && pieces[y + 1][x].team === "black")
+                moves.push([x, y+1]);
+            if (piece.team === "black" && pieces[y + 1][x].team === "white")
+                moves.push([x, y+1]);
+        }
+        y++;
+    }
+    [x, y] = piece.position;
+    for (let blocked = false; !blocked && y > 0;)
+    {
+        if (pieces[y-1][x].team === "free")
+            moves.push([x, y-1]);
+        else {
+            blocked = true;
+            if (piece.team === "white" && pieces[y-1][x].team === "black")
+                moves.push([x, y-1]);
+            if (piece.team === "black" && pieces[y-1][x].team === "white")
+                moves.push([x, y-1]);
+        }
+        y--;
     }
     return moves;
 }
@@ -38,25 +88,119 @@ function RookMoves (piece: PieceInterface, pieces:PieceInterface[][]): Position[
 function KnightMoves (piece: PieceInterface, pieces:PieceInterface[][]): Position[] {
     let [x, y] = piece.position;
     let moves: Position[] = [];
+    if (x+1 <= 7 && y+2 <= 7 && pieces[y+2][x+1].team !== piece.team)
+        moves.push([x+1, y+2]);
+    if (x+1 <= 7 && y-2 >= 0 && pieces[y-2][x+1].team !== piece.team)
+        moves.push([x+1, y-2]);
+    if (x+2 <= 7 && y+1 <= 7 && pieces[y+1][x+2].team !== piece.team)
+        moves.push([x+2, y+1]);
+    if (x+2 <= 7 && y-1 >= 0 && pieces[y-1][x+2].team !== piece.team)
+        moves.push([x+2, y-1]);
+    if (x-1 >= 0 && y-2 >= 0 && pieces[y-2][x-1].team !== piece.team)
+        moves.push([x-1, y-2]);
+    if (x-1 >= 0 && y+2 <= 7 && pieces[y+2][x-1].team !== piece.team)
+        moves.push([x-1, y+2]);
+    if (x-2 >= 0 && y-1 >= 0 && pieces[y-1][x-2].team !== piece.team)
+        moves.push([x-2, y-1]);
+    if (x-2 >= 0 && y+1 <= 7 && pieces[y+1][x-2].team !== piece.team)
+        moves.push([x-2, y+1]);
+
     return moves;
 }
 
 function BishopMoves (piece: PieceInterface, pieces:PieceInterface[][]): Position[] {
     let [x, y] = piece.position;
     let moves: Position[] = [];
+    for (let blocked = false; !blocked && x > 0 && y > 0;)
+    {
+        if (pieces[y-1][x-1].team === "free")
+            moves.push([x-1, y-1]);
+        else {
+            blocked = true;
+            if (piece.team === "white" && pieces[y-1][x-1].team === "black")
+                moves.push([x - 1, y - 1]);
+            if (piece.team === "black" && pieces[y-1][x-1].team === "white")
+                moves.push([x - 1, y - 1]);
+        }
+        x--;
+        y--;
+    }
+    [x, y] = piece.position;
+    for (let blocked = false; !blocked && x < 7 && y > 0;)
+    {
+        if (pieces[y-1][x+1].team === "free")
+            moves.push([x+1, y-1]);
+        else {
+            blocked = true;
+            if (piece.team === "white" && pieces[y-1][x+1].team === "black")
+                moves.push([x+1, y-1]);
+            if (piece.team === "black" && pieces[y-1][x+1].team === "white")
+                moves.push([x+1, y-1]);
+        }
+        x++;
+        y--;
+    }
+    [x, y] = piece.position;
+    for (let blocked = false; !blocked && x > 0 && y < 7;)
+    {
+        if (pieces[y+1][x-1].team === "free")
+            moves.push([x-1, y+1]);
+        else {
+            blocked = true;
+            if (piece.team === "white" && pieces[y+1][x-1].team === "black")
+                moves.push([x-1, y+1]);
+            if (piece.team === "black" && pieces[y+1][x-1].team === "white")
+                moves.push([x-1, y+1]);
+        }
+        x--;
+        y++;
+    }
+    [x, y] = piece.position;
+    for (let blocked = false; !blocked && x < 7 && y < 7;)
+    {
+        if (pieces[y+1][x+1].team === "free")
+            moves.push([x+1, y+1]);
+        else {
+            blocked = true;
+            if (piece.team === "white" && pieces[y+1][x+1].team === "black")
+                moves.push([x+1, y+1]);
+            if (piece.team === "black" && pieces[y+1][x+1].team === "white")
+                moves.push([x+1, y+1]);
+        }
+        x++;
+        y++;
+    }
     return moves;
 }
 
 function QueenMoves (piece: PieceInterface, pieces:PieceInterface[][]): Position[] {
-    let [x, y] = piece.position;
     let moves: Position[] = [];
-
+    const straightMoves = RookMoves(piece, pieces);
+    const diagonalMoves = BishopMoves(piece, pieces);
+    moves.push(...straightMoves, ...diagonalMoves);
     return moves;
 }
 
 function KingMoves (piece: PieceInterface, pieces:PieceInterface[][]): Position[] {
     let [x, y] = piece.position;
     let moves: Position[] = [];
+    if (x > 0 && y > 0 && pieces[y-1][x-1].team !== piece.team)
+        moves.push([x-1, y-1]);
+    if (x > 0 && pieces[y][x-1].team !== piece.team)
+        moves.push([x-1, y]);
+    if (x > 0 && y < 7 && pieces[y+1][x-1].team !== piece.team)
+        moves.push([x-1, y+1]);
+    if (y > 0 && pieces[y-1][x].team !== piece.team)
+        moves.push([x, y-1]);
+    if (y < 7 && pieces[y+1][x].team !== piece.team)
+        moves.push([x, y+1]);
+    if (x < 7 && y > 0 && pieces[y-1][x+1].team !== piece.team)
+        moves.push([x+1, y-1]);
+    if (x < 7 && pieces[y][x+1].team !== piece.team)
+        moves.push([x+1, y]);
+    if (x < 7 && y < 7 && pieces[y+1][x+1].team !== piece.team)
+        moves.push([x+1, y+1]);
+    filterCheckedMoves(piece, moves);
     return moves;
 }
 
@@ -91,4 +235,8 @@ export function findMoveInMoves(pos: Position, moves: Position[]): boolean {
        if (pos[0] === move[0] && pos[1] === move[1])
            return true;
     return false;
+}
+
+function filterCheckedMoves(piece: PieceInterface, moves: Position[]): void {
+
 }

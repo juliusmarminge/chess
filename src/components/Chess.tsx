@@ -15,52 +15,58 @@ export type PieceType = "rook" | "knight" | "bishop" | "queen" | "king" | "pawn"
 
 interface MyProps {}
 interface MyState {
-    pieces: PieceInterface[][],
+    board: PieceInterface[][],
     selectedPiece: Position | null,
     possibleMoves: Position[],
+    turn: Team,
 }
 class Chess extends React.Component<MyProps, MyState>{
     constructor(props : MyProps) {
         super(props);
         this.state = {
-            pieces: initBoard(),
+            board        : initBoard(),
             selectedPiece: null,
             possibleMoves: [],
+            turn: "white"
         }
     }
     selectPiece = (newX: number, newY: number) : void => {
-        let newPieces = this.state.pieces.slice();
-        let newSelected = newPieces[newY][newX];
-        console.log(newSelected.position)
-        if (this.state.possibleMoves && findMoveInMoves(newSelected.position, this.state.possibleMoves)) {
+        let newBoard = this.state.board.slice();
+        let clickedPiece = newBoard[newY][newX];
+        if (findMoveInMoves(clickedPiece.position, this.state.possibleMoves)) {
             let [x,y] = this.state.selectedPiece!;
-            console.log(`Move from (${x},${y}) to (${newX},${newY})`)
-            let oldPiece = newPieces[y][x];
-            console.log(oldPiece)
-            newPieces[newY][newX].typ = oldPiece.typ;
-            newPieces[newY][newX].team = oldPiece.team;
-            newPieces[y][x].typ = "free";
-            newPieces[y][x].team = "free";
-            console.log(newPieces[newY][newX].typ)
+            let oldPiece = newBoard[y][x];
+            newBoard[newY][newX].typ = oldPiece.typ;
+            newBoard[newY][newX].team = oldPiece.team;
+            newBoard[y][x].typ = "free";
+            newBoard[y][x].team = "free";
+            // Send socket move has been done.
         }
-        if (newSelected.typ !== "free") {
-            newSelected.selected = !newSelected.selected;
+        let newSelectedPiece: Position | null = null;
+        if (clickedPiece.typ !== "free") {
+            if (clickedPiece.selected) {
+                clickedPiece.selected = false;
+                newSelectedPiece = null;
+            }
+            else {
+                clickedPiece.selected = true;
+                newSelectedPiece = [newX, newY] as Position;
+            }
         }
-        let newSelectedPiece = newSelected.selected ? [newX, newY] as Position : null
         if (this.state.selectedPiece) {
             let [x, y] = this.state.selectedPiece;
-            newPieces[y][x].selected = false;
+            newBoard[y][x].selected = false;
         }
-        let newMoves = getPossibleMoves(newSelected, newPieces);
+        let newMoves = newSelectedPiece ? getPossibleMoves(clickedPiece, newBoard) : [];
         this.setState({
-            pieces: newPieces,
+            board        : newBoard,
             selectedPiece: newSelectedPiece,
             possibleMoves: newMoves
         });
     };
     render(){
         return (
-            <Board boardPieces={this.state.pieces} selectPiece={this.selectPiece} moves={this.state.possibleMoves}/>
+            <Board boardPieces={this.state.board} selectPiece={this.selectPiece} moves={this.state.possibleMoves}/>
         );
     }
 }
