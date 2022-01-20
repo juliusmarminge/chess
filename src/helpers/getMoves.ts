@@ -1,4 +1,4 @@
-import {Position, PieceInterface} from "../components/Chess";
+import {Position, PieceInterface, Team} from "../components/Chess";
 
 export function getPossibleMoves(piece: PieceInterface, pieces: PieceInterface[][]): Position[] {
     let moves: Position[] = [];
@@ -200,7 +200,7 @@ function KingMoves (piece: PieceInterface, pieces:PieceInterface[][]): Position[
         moves.push([x+1, y]);
     if (x < 7 && y < 7 && pieces[y+1][x+1].team !== piece.team)
         moves.push([x+1, y+1]);
-    filterCheckedMoves(piece, moves);
+    moves = moves.filter(move => !canCheck(move, piece.team, pieces));
     return moves;
 }
 
@@ -237,6 +237,20 @@ export function findMoveInMoves(pos: Position, moves: Position[]): boolean {
     return false;
 }
 
-function filterCheckedMoves(piece: PieceInterface, moves: Position[]): void {
+// canCheck(blackKingPos, black, board)
+function canCheck(pos: Position, team: Team, board: PieceInterface[][]): boolean {
+    let oppositeTeam = team === "white" ? "black" : "white";
+    for (let row of board)
+        for (let piece of row) {
+            if (piece.typ === "king")
+                continue;
+            if (piece.team === oppositeTeam && piece.typ !== "pawn") {
+                let moves = getPossibleMoves(piece, board);
+                if (findMoveInMoves(pos, moves)) return true;
+            }
+            if (piece.team === "white") {
 
+            }
+        }
+    return false;
 }

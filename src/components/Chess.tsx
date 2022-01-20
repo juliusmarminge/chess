@@ -3,6 +3,7 @@ import Board from '../components/Board';
 import {initBoard} from "../helpers/initBoard";
 import {findMoveInMoves, getPossibleMoves} from "../helpers/getMoves";
 import LostPieces from "./LostPieces";
+import {hasChecked} from "../helpers/checkLogic";
 
 export interface PieceInterface {
     typ: PieceType,
@@ -24,6 +25,9 @@ interface MyState {
     possibleMoves: Position[],
     turn: Team,
     lostPieces: LPInterface
+    checked: boolean,
+    whiteKingPos: Position,
+    blackKingPos: Position,
 }
 class Chess extends React.Component<MyProps, MyState>{
     constructor(props : MyProps) {
@@ -34,6 +38,9 @@ class Chess extends React.Component<MyProps, MyState>{
             possibleMoves: [],
             turn: "white",
             lostPieces: {blacks: new Map(), whites: new Map()},
+            checked: false,
+            blackKingPos: [4, 0],
+            whiteKingPos: [4,7],
         }
     }
 
@@ -45,6 +52,14 @@ class Chess extends React.Component<MyProps, MyState>{
         }
         if (clickedPiece.team === this.state.turn)
             this.selectPiece(clickedPiece);
+    }
+
+    getKing(team: Team): PieceInterface {
+        if (team === "white") return this.state.board[this.state.whiteKingPos[1]][this.state.whiteKingPos[0]];
+        return this.state.board[this.state.blackKingPos[1]][this.state.blackKingPos[0]];
+    }
+    oppositeTeam(team: Team) {
+        return team === "white" ? "black" : "white";
     }
 
     makeMove(oldPos: Position, newPos: Position) {
@@ -59,7 +74,6 @@ class Chess extends React.Component<MyProps, MyState>{
                 newLost.blacks.set(toPiece.typ, oldVal!+1);
             }
             else newLost.blacks.set(toPiece.typ, 1);
-
         }
         else if (toPiece.team === "white" && fromPiece.team === "black") {
             if (newLost.whites.has(toPiece.typ)) {
@@ -67,26 +81,40 @@ class Chess extends React.Component<MyProps, MyState>{
                 newLost.whites.set(toPiece.typ, oldVal!+1);
             }
             else newLost.whites.set(toPiece.typ, 1);
-
         }
 
+        let newKingsPos : {white: Position, black: Position} = {white: this.state.whiteKingPos, black: this.state.blackKingPos};
+        if (fromPiece.typ === "king") {
+            if (fromPiece.team === "white")
+                newKingsPos.white = toPiece.position;
+            else newKingsPos.black = toPiece.position;
+            console.log(newKingsPos);
+        }
         toPiece.typ = fromPiece.typ;
         toPiece.team = fromPiece.team;
         fromPiece.typ = "free";
         fromPiece.team = "free";
         fromPiece.selected = false;
+        let nextTurn: Team = this.state.turn === "white" ? "black" : "white";
+        let whiteIsChecked = hasChecked("black", newKingsPos.white, newBoard);
+        let blackIsChecked = hasChecked("white", newKingsPos.black, newBoard);
         this.setState({
             board: newBoard,
             selectedPiece: null,
             possibleMoves: [],
-            turn: this.state.turn === "white" ? "black" : "white",
+            turn: nextTurn,
+            whiteKingPos: newKingsPos.white,
+            blackKingPos: newKingsPos.black,
             lostPieces: newLost,
+            checked: nextTurn === "white" ? whiteIsChecked : blackIsChecked,
         });
 
         // Send socket move has been made
     }
 
     selectPiece = (piece: PieceInterface) : void => {
+        if (this.state.checked && piece.typ !== "king")
+            return;
         let newBoard = this.state.board.slice();
         let newSelected : Position | null = null;
         let newMoves : Position[] = [];
@@ -107,14 +135,15 @@ class Chess extends React.Component<MyProps, MyState>{
             selectedPiece: newSelected,
         });
     }
-
     render(){
         return (
             <div className={"container mx-auto grid justify-center mt-10 grid-cols-4"}>
                 <div className={"row-start-2"}>
                     <LostPieces team={"white"} pieces={Array.from(this.state.lostPieces.whites, ([typ, quantity]) => ({ typ, quantity }))} />
                 </div>
-                <p className={"text-xl text-white col-start-2 col-span-2 py-4 font-bold uppercase text-center"}>Turn: {this.state.turn}</p>
+                <p className={`text-xl text-white col-start-2 col-span-2 py-4 font-bold uppercase ${this.state.checked ? "text-red-600" : ""} text-center`}>
+                    {this.state.checked ? `${this.state.turn}'s checked` : `${this.state.turn}'s turn`}
+                </p>
                 <div className={"col-start-2 col-span-2 row-start-2 flex justify-center"}>
                     <Board boardPieces={this.state.board} handleClick={this.handleClick} moves={this.state.possibleMoves}/>
                 </div>
